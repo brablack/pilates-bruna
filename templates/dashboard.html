@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pilates</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body{
+            background: #f4f6f9;
+        }
+
+        .menu{
+            background: #6f42c1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .menu h2{
+            color: white;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .menu a{
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .menu a:hover{
+            background: rgba(255,255,255,0.2);
+        }
+
+        .conteudo{
+            padding: 30px;
+        }
+
+        .card-dashboard{
+            border: none;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            background: white;
+        }
+
+        .numero{
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .badge-status{
+            font-size: 13px;
+            padding: 7px 10px;
+        }
+
+        @media (max-width: 768px){
+            .menu{
+                min-height: auto;
+                text-align: center;
+            }
+
+            .menu a{
+                display: inline-block;
+                margin: 5px;
+            }
+
+            .conteudo{
+                padding: 15px;
+            }
+
+            h1{
+                font-size: 24px;
+                text-align: center;
+            }
+
+            .card-dashboard{
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-2 menu">
+            <h2>Pilates</h2>
+
+            <a href="/dashboard">Dashboard</a>
+            <a href="/alunos">Alunos</a>
+            <a href="/agenda">Agenda</a>
+
+            {% if session["nivel"] == "admin" %}
+                <a href="/mensalidades">Mensalidades</a>
+                <a href="/relatorio_mensalidades_excel">Relatório Excel</a>
+                <a href="/relatorio_mensalidades_pdf">Relatório PDF</a>
+            {% endif %}
+
+            <a href="/sair">Sair</a>
+        </div>
+
+        <div class="col-md-10 conteudo">
+
+            <h1 class="mb-4">Bruna Felix - Pilates & Massage</h1>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <div class="card-dashboard">
+                        <h5>Total de Alunos</h5>
+                        <div class="numero">{{ total_alunos }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card-dashboard">
+                        <h5>Aulas Hoje</h5>
+                        <div class="numero">{{ aulas_hoje }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card-dashboard">
+                        <h5>Aulas no Mês</h5>
+                        <div class="numero">{{ aulas_mes }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card-dashboard">
+                        <h5>Presenças</h5>
+                        <div class="numero">{{ total_presencas }}</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div class="card-dashboard">
+                        <h5>Faltas no Mês</h5>
+                        <div class="numero text-danger">{{ total_faltas }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-dashboard">
+                        <h5>Canceladas</h5>
+                        <div class="numero text-secondary">{{ total_canceladas }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-dashboard">
+                        <h5>Taxa de Presença</h5>
+
+                        {% if aulas_mes > 0 %}
+                            <div class="numero">
+                                {{ "%.0f"|format((total_presencas / aulas_mes) * 100) }}%
+                            </div>
+                        {% else %}
+                            <div class="numero">0%</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-3">
+
+                <div class="col-md-8">
+                    <div class="card-dashboard">
+                        <h4 class="mb-3">Agenda do Mês</h4>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Aluno</th>
+                                        <th>Data</th>
+                                        <th>Horário</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for aula in aulas_mes_lista %}
+                                    <tr>
+                                        <td>{{ aula[1] }}</td>
+                                        <td>{{ aula[2] }}</td>
+                                        <td>{{ aula[3] }}</td>
+                                        <td>{{ aula[4] }}</td>
+                                        <td>
+                                            {% if aula[5] == "Presente" %}
+                                                <span class="badge bg-success badge-status">Presente</span>
+                                            {% elif aula[5] == "Faltou" %}
+                                                <span class="badge bg-danger badge-status">Faltou</span>
+                                            {% elif aula[5] == "Cancelada" %}
+                                                <span class="badge bg-secondary badge-status">Cancelada</span>
+                                            {% elif aula[5] == "Reposição" %}
+                                                <span class="badge bg-warning text-dark badge-status">Reposição</span>
+                                            {% else %}
+                                                <span class="badge bg-primary badge-status">Agendada</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if aulas_mes_lista|length == 0 %}
+                            <p class="text-muted">Nenhuma aula agendada para este mês.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-dashboard">
+                        <h4 class="mb-3">Mensalidades Pendentes</h4>
+
+                        {% for mensalidade in mensalidades_pendentes %}
+                            <div class="border-bottom pb-2 mb-2">
+                                <strong>{{ mensalidade[0] }}</strong><br>
+                                Valor: R$ {{ "%.2f"|format(mensalidade[1]) }}<br>
+                                Vencimento: {{ mensalidade[2] }}<br>
+
+                                {% if mensalidade[3] == "Atrasado" %}
+                                    <span class="badge bg-danger">Atrasado</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pendente</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        {% if mensalidades_pendentes|length == 0 %}
+                            <p class="text-muted">Nenhuma mensalidade pendente.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
