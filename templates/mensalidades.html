@@ -57,6 +57,10 @@
     <h3>Mensalidades Cadastradas</h3>
 
     <div class="mb-3">
+        <a href="/receber_mensalidades" class="btn btn-success mb-3">
+            Receber Mensalidade
+        </a>
+        
         <a href = "/relatorio_mensalidades_excel" class="btn btn-success">
             Baixar Excel
         </a>
@@ -76,6 +80,7 @@
                     <th>Valor</th>
                     <th>Vencimento</th>
                     <th>Status</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
 
@@ -87,6 +92,16 @@
                     <td>R$ {{ "%.2f"|format(mensalidade[3]) }}</td>
                     <td>{{ mensalidade[4] }}</td>
                     <td>{{ mensalidade[5] }}</td>
+                    <td>
+                        {% if mensalidade[5] != 'Pago' %}
+                            <a href="/receber_mensalidade/{{ mensalidade[0] }}"
+                            class="btn btn-sm btn-success">
+                            Receber
+                            </a>
+                        {% else %}
+                            <span class="badge bg-success">Pago</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

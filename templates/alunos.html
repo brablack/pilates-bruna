@@ -15,6 +15,8 @@
 
     <form action="/cadastrar_aluno" method="POST" class="card p-4 mb-4">
 
+        <h5 class="mb-3">Dados do Aluno</h5>
+
         <div class="mb-3">
             <label class="form-label">Nome</label>
             <input type="text" name="nome" class="form-control" required>
@@ -45,7 +47,41 @@
             <textarea name="observacoes" class="form-control"></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Cadastrar Aluno</button>
+        <hr>
+
+        <h5 class="mb-3">Dados do Contrato e Plano</h5>
+
+        <div class="mb-3">
+            <label class="form-label">Tipo de Plano</label>
+            <input type="text" name="tipo_plano" class="form-control" placeholder="Ex: Pilates Individual, Dupla, Grupo">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Número de Aulas por Semana</label>
+            <input type="text" name="aulas_semana" class="form-control" placeholder="Ex: 1, 2 ou 3">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Dias e Horários Fixos das Aulas</label>
+            <input type="text" name="dias_horarios" class="form-control" placeholder="Ex: Segunda e Quarta às 18:00">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Valor Mensal</label>
+            <input type="number" step="0.01" name="valor_mensal" class="form-control" placeholder="Ex: 180.00">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Dia do Vencimento</label>
+            <input type="number" name="dia_vencimento" class="form-control" min="1" max="31" placeholder="Ex: 10">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Data de Início do Contrato</label>
+            <input type="date" name="data_inicio" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Cadastrar Aluno e Gerar Mensalidades</button>
 
     </form>
 
@@ -57,11 +93,12 @@
             <thead>
                 <tr>
                     <th>Nome</th>
-                    <th>Endereco</th>
                     <th>Telefone</th>
                     <th>E-mail</th>
-                    <th>Data Nascimento</th>
-                    <th>Observações</th>
+                    <th>Plano</th>
+                    <th>Valor Mensal</th>
+                    <th>Vencimento</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
 
@@ -69,11 +106,40 @@
                 {% for aluno in alunos %}
                 <tr>
                     <td>{{ aluno[1] }}</td>
-                    <td>{{ aluno[2] }}</td>
                     <td>{{ aluno[3] }}</td>
                     <td>{{ aluno[4] }}</td>
-                    <td>{{ aluno[5] }}</td>
-                    <td>{{ aluno[6] }}</td>
+                    <td>{{ aluno[7] }}</td>
+                    <td>
+                        {% if aluno[10] %}
+                            $ {{ "%.2f"|format(aluno[10]) }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if aluno[11] %}
+                            Dia {{ aluno[11] }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/editar_aluno/{{ aluno[0] }}" class="btn btn-sm btn-info">
+                            Editar
+                        </a>
+                        
+                        <a href="/contrato/{{ aluno[0] }}"
+                            class="btn btn-sm btn-success"
+                            target="_blank">
+                            Imprimir Contrato
+                        </a>
+
+                        <a href="/assinar_contrato/{{ aluno[0]}}"
+                            class="btn btn-sm btn-primary">
+                            Assinar
+                        </a>
+
+                        <a href="/whatsapp_contrato/{{ aluno[0] }}"
+                            class="btn btn-sm btn-warning" target="_blank">
+                            Whatsapp
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
